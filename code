@@ -1,0 +1,99 @@
+// Interactive Product Inventory & Analytics Dashboard
+// Uses: prompt, conversion, if...else, switch, loops, break/continue,
+// regular and arrow functions, scope, forEach, filter, map, tax and discount.
+
+const inventory = [
+    { name: "Laptop", price: 800 },
+    { name: "Mouse", price: 25 }
+];
+
+console.log("--- Initializing Inventory System ---");
+
+let productName = prompt("Enter new product name:");
+let priceInput = prompt("Enter product price:");
+let productPrice = Number(priceInput);
+
+// Validate input using if...else.
+if (productName === null || productName.trim() === "" ||
+    priceInput === null || priceInput.trim() === "" ||
+    !Number.isFinite(productPrice) || productPrice < 0) {
+    console.log("Invalid product input. Please enter a product name and a valid non-negative price.");
+} else {
+    productName = productName.trim();
+    inventory.push({ name: productName, price: productPrice });
+
+    // switch assigns the category badge using a price band.
+    function getCategory(price) {
+        let priceBand;
+        if (price < 50) {
+            priceBand = "LOW";
+        } else if (price < 200) {
+            priceBand = "MID";
+        } else {
+            priceBand = "HIGH";
+        }
+
+        switch (priceBand) {
+            case "LOW": return "Budget";
+            case "MID": return "Standard";
+            case "HIGH": return "Premium";
+            default: return "Unclassified";
+        }
+    }
+
+    // Regular function: calculate total inventory value.
+    function getTotalValue(items) {
+        let total = 0;
+        for (let i = 0; i < items.length; i++) {
+            // continue safely skips any invalid item.
+            if (!Number.isFinite(items[i].price) || items[i].price < 0) {
+                continue;
+            }
+            total += items[i].price;
+        }
+        return total;
+    }
+
+    // Arrow functions with default parameters.
+    const applyDiscount = (amount, discountPercent = 0) =>
+        amount - (amount * discountPercent / 100);
+    const applyTax = (amount, taxPercent = 0) =>
+        amount + (amount * taxPercent / 100);
+
+    console.log(`\n[Prompt executed: User adds "${productName}" at "$${productPrice}"]`);
+    console.log("\n--- Processing Inventory Roster (forEach) ---");
+
+    inventory.forEach(item => {
+        console.log(`* Item: ${item.name} ($${item.price}) -> Category: ${getCategory(item.price)}`);
+    });
+
+    // Search using a loop and break when the first affordable product is found.
+    let firstAffordable = null;
+    for (const item of inventory) {
+        if (item.price < 200) {
+            firstAffordable = item;
+            break;
+        }
+    }
+    if (firstAffordable !== null) {
+        console.log(`First affordable product found: ${firstAffordable.name}`);
+    }
+
+    console.log("\n--- Financial Analytics ---");
+    const totalInventoryValue = getTotalValue(inventory);
+    const affordableItems = inventory
+        .filter(item => item.price < 200)
+        .map(item => item.name);
+    const formattedReport = inventory.map(
+        item => `${item.name.toUpperCase()}: $${item.price}`
+    );
+
+    const discountedValue = applyDiscount(totalInventoryValue, 10);
+    const finalValueWithTax = applyTax(discountedValue, 5);
+
+    console.log(`Total Inventory Value: $${totalInventoryValue}`);
+    console.log(`Filtered Affordable Items (Under $200): ${JSON.stringify(affordableItems)}`);
+    console.log(`Formatted Report List: ${JSON.stringify(formattedReport)}`);
+    console.log(`Value after 10% discount: $${discountedValue}`);
+    console.log(`Final value after 5% tax: $${finalValueWithTax}`);
+}
